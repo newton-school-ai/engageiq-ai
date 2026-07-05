@@ -11,12 +11,14 @@ import numpy as np
 
 class WebcamCaptureError(Exception):
     """Raised when the capture source cannot be opened or read."""
+
     pass
 
 
 @dataclass
 class Frame:
     """A single captured frame with metadata."""
+
     image: np.ndarray
     timestamp: float
     frame_number: int
@@ -113,7 +115,9 @@ class WebcamCapture:
 def main():
     parser = argparse.ArgumentParser(description="Test webcam capture")
     parser.add_argument("--fps", type=int, default=15, help="Target FPS")
-    parser.add_argument("--duration", type=float, default=5.0, help="Capture duration in seconds")
+    parser.add_argument(
+        "--duration", type=float, default=5.0, help="Capture duration in seconds"
+    )
     parser.add_argument("--source", default=0, help="Webcam index or video file path")
     args = parser.parse_args()
 
@@ -128,7 +132,9 @@ def main():
                 count += 1
             elapsed = time.time() - start
             actual_fps = count / elapsed if elapsed > 0 else 0
-            print(f"Captured {count} frames in {elapsed:.2f}s -> actual FPS: {actual_fps:.2f}")
+            print(
+                f"Captured {count} frames in {elapsed:.2f}s -> actual FPS: {actual_fps:.2f}"
+            )
     except WebcamCaptureError as e:
         print(f"Error: {e}")
 

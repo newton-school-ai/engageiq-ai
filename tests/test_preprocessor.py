@@ -22,7 +22,9 @@ def test_preprocessing_normalizes_pixels():
 
 
 def test_batch_process():
-    frames = [np.random.randint(0, 255, (1080, 1920, 3), dtype=np.uint8) for _ in range(3)]
+    frames = [
+        np.random.randint(0, 255, (1080, 1920, 3), dtype=np.uint8) for _ in range(3)
+    ]
     prep = FramePreprocessor(target_size=(640, 480))
     batch = prep.batch_process(frames)
 
