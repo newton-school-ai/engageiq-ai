@@ -25,6 +25,12 @@ def health_check():
     """Health check endpoint."""
     return {"status": "ok", "version": "0.1.0"}
 
+from src.api.websocket import websocket_endpoint
+
+app.add_api_websocket_route(
+    "/ws/session/{session_id}",
+    websocket_endpoint
+)
 
 # TODO: Include route modules
 # from src.api.routes import users, courses, sessions, engagement, reports
