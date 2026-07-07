@@ -4,7 +4,6 @@ import base64
 import json
 
 import numpy as np
-import pytest
 from fastapi.testclient import TestClient
 
 from src.api.main import app
