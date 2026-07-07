@@ -1,12 +1,13 @@
 """Tests for Alembic migrations and seed data."""
 
 import os
+
 import pytest
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import Session
 
+from src.models import course, engagement_log, nudge, report, session, user  # noqa
 from src.models.base import Base
-from src.models import user, course, session, engagement_log, nudge, report  # noqa
 
 # Use SQLite for CI, PostgreSQL locally if available
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test_engageiq.db")
