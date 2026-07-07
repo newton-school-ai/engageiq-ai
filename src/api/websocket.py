@@ -1,4 +1,5 @@
 """WebSocket endpoint for real-time frame streaming."""
+
 import base64
 import json
 
@@ -32,12 +33,14 @@ async def websocket_endpoint(websocket: WebSocket, session_id: int) -> None:
             processed = preprocessor.process(frame)  # noqa: F841
 
             # Send back engagement score
-            await websocket.send_json({
-                "session_id": session_id,
-                "engagement_score": 75.0,
-                "timestamp": payload.get("timestamp", 0.0),
-                "status": "processed",
-            })
+            await websocket.send_json(
+                {
+                    "session_id": session_id,
+                    "engagement_score": 75.0,
+                    "timestamp": payload.get("timestamp", 0.0),
+                    "status": "processed",
+                }
+            )
 
     except WebSocketDisconnect:
         print(f"Client disconnected from session {session_id}")

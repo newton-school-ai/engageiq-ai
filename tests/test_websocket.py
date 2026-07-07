@@ -1,4 +1,5 @@
 """Tests for WebSocket endpoint."""
+
 import base64
 import json
 
@@ -25,10 +26,7 @@ def test_websocket_frame_processing():
         frame_b64 = base64.b64encode(frame.tobytes()).decode()
 
         # Send frame
-        websocket.send_text(json.dumps({
-            "frame": frame_b64,
-            "timestamp": 1.0
-        }))
+        websocket.send_text(json.dumps({"frame": frame_b64, "timestamp": 1.0}))
 
         # Receive response
         response = json.loads(websocket.receive_text())
