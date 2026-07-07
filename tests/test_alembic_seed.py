@@ -9,14 +9,15 @@ from src.models.base import Base
 from src.models import user, course, session, engagement_log, nudge, report  # noqa
 
 # Use SQLite for CI, PostgreSQL locally if available
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "sqlite:///./test_engageiq.db"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test_engageiq.db")
 
 
 @pytest.fixture(scope="module")
 def engine():
-    eng = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
+    eng = create_engine(
+        DATABASE_URL,
+        connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {},
+    )
     Base.metadata.create_all(eng)
     yield eng
     Base.metadata.drop_all(eng)
@@ -36,10 +37,12 @@ def test_migration_creates_tables(engine):
 # Test 2: Seed data counts are correct
 def test_seed_data_counts(engine):
     import sys
+
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     # Override engine in seed module
     import scripts.seed as seed_module
+
     original_engine = seed_module.engine
     seed_module.engine = engine
 
@@ -62,6 +65,7 @@ def test_seed_data_counts(engine):
 # Test 3: Seed is idempotent
 def test_seed_idempotent(engine):
     import scripts.seed as seed_module
+
     original_engine = seed_module.engine
     seed_module.engine = engine
 
