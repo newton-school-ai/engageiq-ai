@@ -55,12 +55,14 @@ def test_no_face_returns_empty():
 
     assert isinstance(result, FaceMeshResult)
     assert result.faces == []
+    assert result.frame_shape == (640, 480)
+    assert isinstance(result.timestamp, float)
 
 
 def test_landmarks_shape():
     """Each detected face should produce 468 landmarks in a (468, 3) array."""
     detector = FaceMeshDetector()
-    fake_face = [SimpleNamespace(x=0.0, y=0.0, z=0.0) for _ in range(468)]
+    fake_face = [SimpleNamespace(x=0.2, y=0.3, z=0.0) for _ in range(468)]
     fake_results = SimpleNamespace(multi_face_landmarks=[fake_face])
     detector._mesh = _FakeFaceMesh(fake_results)
 
@@ -69,6 +71,9 @@ def test_landmarks_shape():
     assert len(result.faces) == 1
     assert isinstance(result.faces[0], FaceLandmarks)
     assert result.faces[0].landmarks.shape == (468, 3)
+    assert len(result.faces[0].bbox) == 4
+    assert result.faces[0].bbox[2] >= 0
+    assert result.faces[0].bbox[3] >= 0
 
 
 def test_confidence_range():

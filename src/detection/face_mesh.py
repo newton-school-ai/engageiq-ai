@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import time
 from dataclasses import dataclass
 from typing import Any
 
@@ -16,6 +17,7 @@ class FaceLandmarks:
 
     landmarks: np.ndarray
     confidence: float
+    bbox: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
 
 
 @dataclass
@@ -23,6 +25,8 @@ class FaceMeshResult:
     """The complete face-mesh detection result for a frame."""
 
     faces: list[FaceLandmarks]
+    frame_shape: tuple[int, int] = (0, 0)
+    timestamp: float = 0.0
 
 
 class FaceMeshDetector:
@@ -54,6 +58,7 @@ class FaceMeshDetector:
             max_num_faces=self.max_faces,
             min_detection_confidence=self.min_detection_confidence,
             min_tracking_confidence=0.5,
+            refine_landmarks=True,
         )
 
     def _coerce_landmarks(self, face: Any) -> list[Any]:
@@ -102,6 +107,38 @@ class FaceMeshDetector:
         padding = np.zeros((468 - coords.shape[0], 3), dtype=np.float32)
         return np.vstack([coords, padding])
 
+    def _compute_bbox(
+        self, landmarks: np.ndarray, frame_shape: tuple[int, int]
+    ) -> tuple[float, float, float, float]:
+        """Compute a pixel-space bounding box from normalized landmarks.
+
+        Args:
+            landmarks: Landmark coordinates with shape (468, 3) or similar.
+            frame_shape: Frame shape as (width, height).
+
+        Returns:
+            A tuple of (x, y, width, height) pixel coordinates.
+        """
+        if landmarks.size == 0:
+            return (0.0, 0.0, 0.0, 0.0)
+
+        width, height = frame_shape
+        if width <= 0 or height <= 0:
+            return (0.0, 0.0, 0.0, 0.0)
+
+        xs = landmarks[:, 0]
+        ys = landmarks[:, 1]
+        x_min = float(np.min(xs)) * width
+        y_min = float(np.min(ys)) * height
+        x_max = float(np.max(xs)) * width
+        y_max = float(np.max(ys)) * height
+        return (
+            float(x_min),
+            float(y_min),
+            float(max(0.0, x_max - x_min)),
+            float(max(0.0, y_max - y_min)),
+        )
+
     def detect(self, frame: np.ndarray) -> FaceMeshResult:
         """Detect face landmarks in a BGR frame.
 
@@ -113,14 +150,21 @@ class FaceMeshDetector:
             returned for no-face or invalid frames.
         """
         if frame is None or not isinstance(frame, np.ndarray) or frame.size == 0:
-            return FaceMeshResult(faces=[])
+            return FaceMeshResult(faces=[], frame_shape=(0, 0), timestamp=time.time())
 
         if frame.ndim != 3 or frame.shape[2] != 3:
-            return FaceMeshResult(faces=[])
+            return FaceMeshResult(
+                faces=[],
+                frame_shape=(frame.shape[1], frame.shape[0]),
+                timestamp=time.time(),
+            )
 
+        frame_shape = (frame.shape[1], frame.shape[0])
         self._init_mesh()
         if self._mesh is None or not hasattr(self._mesh, "process"):
-            return FaceMeshResult(faces=[])
+            return FaceMeshResult(
+                faces=[], frame_shape=frame_shape, timestamp=time.time()
+            )
 
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = self._mesh.process(rgb_frame)
@@ -129,18 +173,29 @@ class FaceMeshDetector:
             not hasattr(results, "multi_face_landmarks")
             or not results.multi_face_landmarks
         ):
-            return FaceMeshResult(faces=[])
+            return FaceMeshResult(
+                faces=[], frame_shape=frame_shape, timestamp=time.time()
+            )
 
         faces: list[FaceLandmarks] = []
         for face in results.multi_face_landmarks[: self.max_faces]:
             landmark_sequence = self._coerce_landmarks(face)
             landmarks_array = self._landmarks_to_array(landmark_sequence)
             confidence = 1.0 if landmarks_array.shape[0] > 0 else 0.0
+            bbox = self._compute_bbox(landmarks_array, frame_shape)
             faces.append(
-                FaceLandmarks(landmarks=landmarks_array, confidence=confidence)
+                FaceLandmarks(
+                    landmarks=landmarks_array,
+                    confidence=confidence,
+                    bbox=bbox,
+                )
             )
 
-        return FaceMeshResult(faces=faces)
+        return FaceMeshResult(
+            faces=faces,
+            frame_shape=frame_shape,
+            timestamp=time.time(),
+        )
 
     def close(self) -> None:
         """Release MediaPipe resources if they have been initialized."""
