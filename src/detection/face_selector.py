@@ -21,7 +21,7 @@ class FaceSelector:
         """
         self.timeout_seconds = timeout_seconds
         self.similarity_threshold = similarity_threshold
-        
+
         self.primary_embedding: Optional[np.ndarray] = None
         self.last_seen_time: float = 0.0
 
@@ -72,7 +72,9 @@ class FaceSelector:
             return bbox[2] * bbox[3]
         return 0.0
 
-    def select(self, faces: List[Any], current_time: Optional[float] = None) -> Optional[int]:
+    def select(
+        self, faces: List[Any], current_time: Optional[float] = None
+    ) -> Optional[int]:
         """Select the primary face from a list of faces.
 
         Args:
@@ -119,7 +121,7 @@ class FaceSelector:
                 dist = cosine(self.primary_embedding, emb)
                 if np.isnan(dist):
                     continue
-                
+
                 similarity = 1.0 - dist
                 if similarity > best_similarity:
                     best_similarity = similarity
@@ -158,7 +160,7 @@ def run_demo(camera_index: int = 0) -> None:
             # Detect faces
             result = detector.detect(frame)
             faces = result.faces
-            
+
             # Select primary face
             primary_idx = selector.select(faces)
 
@@ -166,10 +168,10 @@ def run_demo(camera_index: int = 0) -> None:
             for i, face in enumerate(faces):
                 color = (0, 255, 0) if i == primary_idx else (128, 128, 128)
                 thickness = 2 if i == primary_idx else 1
-                
+
                 x, y, w, h = [int(v) for v in face.bbox]
                 cv2.rectangle(frame, (x, y), (x + w, y + h), color, thickness)
-                
+
                 label = "Primary" if i == primary_idx else f"Other {i}"
                 cv2.putText(
                     frame,
@@ -180,7 +182,7 @@ def run_demo(camera_index: int = 0) -> None:
                     color,
                     thickness,
                 )
-                
+
                 # Draw landmarks for primary face only to reduce clutter
                 if i == primary_idx:
                     for landmark in face.landmarks:
@@ -189,7 +191,7 @@ def run_demo(camera_index: int = 0) -> None:
                         cv2.circle(frame, (lx, ly), 1, color, -1)
 
             cv2.imshow(window_name, frame)
-            
+
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
                 break
