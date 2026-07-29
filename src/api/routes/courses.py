@@ -4,10 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from src.api.middleware.auth import get_current_user, require_role
-from src.api.schemas.course import (
-    CourseCreate,
-    CourseResponse,
-)
+from src.api.schemas.course import CourseCreate, CourseResponse
 from src.database import get_db
 from src.models.course import Course
 from src.models.user import User

@@ -11,11 +11,11 @@ from sqlalchemy.pool import StaticPool
 from src.api.main import app
 from src.database import get_db
 from src.models.base import Base
-from src.scoring.calibration import CalibrationManager
 
 # Import models to register in SQLAlchemy metadata
 from src.models.calibration import Calibration  # noqa: F401
 from src.models.user import User  # noqa: F401
+from src.scoring.calibration import CalibrationManager
 
 # In-memory SQLite DB for API + model tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"

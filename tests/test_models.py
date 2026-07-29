@@ -5,12 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
-from src.config.settings import (
-    EngagementState,
-    NudgeType,
-    PrivacyMode,
-    UserRole,
-)
+from src.config.settings import EngagementState, NudgeType, PrivacyMode, UserRole
 from src.models import Base, Course, EngagementLog, Nudge, Report, Session, User
 
 
