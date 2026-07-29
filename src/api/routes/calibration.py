@@ -136,7 +136,8 @@ def calibrate_user(
 
     # Compute calibration
     pose_readings: list[PoseReading] = [
-        {"pitch": pr.pitch, "yaw": pr.yaw, "roll": pr.roll} for pr in payload.pose_readings
+        {"pitch": pr.pitch, "yaw": pr.yaw, "roll": pr.roll}
+        for pr in payload.pose_readings
     ]
 
     computed = manager.compute_thresholds(

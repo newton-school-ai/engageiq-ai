@@ -89,9 +89,10 @@ class CalibrationManager:
     ) -> Calibration:
         """Insert or update calibration payload for a student."""
         existing = self.get_calibration(user_id)
-        payload = baseline_expression_distribution or computed[
-            "baseline_expression_distribution"
-        ]
+        payload = (
+            baseline_expression_distribution
+            or computed["baseline_expression_distribution"]
+        )
 
         if existing is None:
             calib = Calibration(
@@ -116,7 +117,9 @@ class CalibrationManager:
         existing.ear_threshold = computed["ear_threshold"]
         existing.baseline_pose_pitch_deg = computed["baseline_pose_pitch_deg"]
         existing.baseline_pose_yaw_deg = computed["baseline_pose_yaw_deg"]
-        existing.gaze_pitch_down_threshold_deg = computed["gaze_pitch_down_threshold_deg"]
+        existing.gaze_pitch_down_threshold_deg = computed[
+            "gaze_pitch_down_threshold_deg"
+        ]
         existing.gaze_yaw_threshold_deg_left = computed["gaze_yaw_threshold_deg_left"]
         existing.gaze_yaw_threshold_deg_right = computed["gaze_yaw_threshold_deg_right"]
         existing.baseline_expression_distribution = payload
@@ -171,7 +174,9 @@ class CalibrationManager:
             raise ValueError("baseline_expression_distribution must not be empty")
 
         # Ensure values are floats.
-        baseline_dist = {k: float(v) for k, v in baseline_expression_distribution.items()}
+        baseline_dist = {
+            k: float(v) for k, v in baseline_expression_distribution.items()
+        }
 
         return CalibrationComputationResult(
             resting_ear=resting_ear,
@@ -201,11 +206,17 @@ class CalibrationManager:
                 "yaw_right_deg": calibration.gaze_yaw_threshold_deg_right,
             },
             "baseline_expression_distribution": calibration.baseline_expression_distribution,
-            "created_at": calibration.created_at.isoformat() if calibration.created_at else None,
-            "updated_at": calibration.updated_at.isoformat() if calibration.updated_at else None,
+            "created_at": (
+                calibration.created_at.isoformat() if calibration.created_at else None
+            ),
+            "updated_at": (
+                calibration.updated_at.isoformat() if calibration.updated_at else None
+            ),
         }
 
-    def apply_or_default_gaze_thresholds(self, calibration: Optional[Calibration]) -> Dict[str, float]:
+    def apply_or_default_gaze_thresholds(
+        self, calibration: Optional[Calibration]
+    ) -> Dict[str, float]:
         """Return threshold values to drive gaze classification."""
         if calibration is None:
             # Defaults are relative to a neutral (0) pose.
@@ -218,13 +229,18 @@ class CalibrationManager:
 
         return {
             "ear_closed_threshold": settings.gaze_ear_closed_threshold,  # separate gating; keep default for now
-            "pitch_down_threshold_deg": calibration.gaze_pitch_down_threshold_deg or settings.gaze_pitch_down_threshold_deg,
-            "yaw_left_threshold_deg": calibration.gaze_yaw_threshold_deg_left
-            if calibration.gaze_yaw_threshold_deg_left is not None
-            else -settings.gaze_yaw_threshold_deg,
-            "yaw_right_threshold_deg": calibration.gaze_yaw_threshold_deg_right
-            if calibration.gaze_yaw_threshold_deg_right is not None
-            else settings.gaze_yaw_threshold_deg,
+            "pitch_down_threshold_deg": calibration.gaze_pitch_down_threshold_deg
+            or settings.gaze_pitch_down_threshold_deg,
+            "yaw_left_threshold_deg": (
+                calibration.gaze_yaw_threshold_deg_left
+                if calibration.gaze_yaw_threshold_deg_left is not None
+                else -settings.gaze_yaw_threshold_deg
+            ),
+            "yaw_right_threshold_deg": (
+                calibration.gaze_yaw_threshold_deg_right
+                if calibration.gaze_yaw_threshold_deg_right is not None
+                else settings.gaze_yaw_threshold_deg
+            ),
         }
 
     def start_calibration_state(self, user_id: int) -> CalibrationState:

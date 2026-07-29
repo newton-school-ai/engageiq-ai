@@ -66,7 +66,9 @@ class Calibration(Base):
         JSON, nullable=True
     )
 
-    calibration_version: Mapped[str] = mapped_column(String(50), nullable=False, default="v1")
+    calibration_version: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="v1"
+    )
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

@@ -47,12 +47,16 @@ def setup_test_db():
 
     with engine.connect() as conn:
         # Terminate any remaining connections to the test database
-        conn.execute(text(f"""
+        conn.execute(
+            text(
+                f"""
             SELECT pg_terminate_backend(pg_stat_activity.pid)
             FROM pg_stat_activity
             WHERE pg_stat_activity.datname = '{TEST_DB_NAME}'
               AND pid <> pg_backend_pid();
-        """))
+        """
+            )
+        )
         conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB_NAME}"))
 
 

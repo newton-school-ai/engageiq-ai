@@ -17,7 +17,6 @@ from src.scoring.calibration import CalibrationManager
 from src.models.calibration import Calibration  # noqa: F401
 from src.models.user import User  # noqa: F401
 
-
 # In-memory SQLite DB for API + model tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
@@ -26,9 +25,7 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
-TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine
-)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(scope="function")
@@ -66,7 +63,9 @@ def _login(client: TestClient, credential: str) -> str:
 
 
 def test_compute_thresholds_ear_and_gaze_calibration(db):
-    manager = CalibrationManager(db, ear_multiplier=0.8, calibration_duration_seconds=30.0)
+    manager = CalibrationManager(
+        db, ear_multiplier=0.8, calibration_duration_seconds=30.0
+    )
 
     ear_readings = [0.30, 0.40, 0.35]  # median = 0.35 => threshold = 0.28
     pose_readings = [
@@ -128,6 +127,7 @@ def test_calibration_api_skip_and_get_default_behaviour(db, client):
 
     # Fetch user_id from DB
     from src.models.user import User
+
     user = db.query(User).filter(User.email == "mock_student@nst.edu").first()
     assert user is not None
 
@@ -165,6 +165,7 @@ def test_calibration_api_invalid_session_duration_rejected(db, client):
     token = _login(client, "mock_student2@nst.edu")
 
     from src.models.user import User
+
     user = db.query(User).filter(User.email == "mock_student2@nst.edu").first()
     assert user is not None
     user_id = user.id
@@ -187,6 +188,7 @@ def test_calibration_api_persists_and_gets_values(db, client):
     token = _login(client, "mock_student3@nst.edu")
 
     from src.models.user import User
+
     user = db.query(User).filter(User.email == "mock_student3@nst.edu").first()
     assert user is not None
     user_id = user.id
