@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.api import websocket
 from src.api.routes import auth, courses, users
+from src.api.routes.calibration import router as calibration_router
 from src.config.settings import settings
 
 app = FastAPI(
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(courses.router, prefix="/api/v1")
+app.include_router(calibration_router, prefix="/api")
 
 
 @app.get("/health")

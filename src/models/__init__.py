@@ -8,6 +8,7 @@ from src.models.nudge import Nudge
 from src.models.report import Report
 from src.models.session import Session
 from src.models.user import User
+from src.models.calibration import Calibration
 
 __all__ = [
     "Base",
@@ -17,5 +18,6 @@ __all__ = [
     "EngagementLog",
     "Nudge",
     "Report",
+    "Calibration",
     "enrollments",
 ]

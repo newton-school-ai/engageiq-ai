@@ -12,6 +12,7 @@ from src.config.settings import PrivacyMode, UserRole
 from src.models.base import Base
 
 if TYPE_CHECKING:
+    from src.models.calibration import Calibration
     from src.models.course import Course
     from src.models.engagement_log import EngagementLog
     from src.models.nudge import Nudge
@@ -57,6 +58,9 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
     nudges: Mapped[list["Nudge"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    calibrations: Mapped[list["Calibration"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 

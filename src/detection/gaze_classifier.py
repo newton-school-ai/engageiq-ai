@@ -66,35 +66,66 @@ def calculate_iris_ratio(eye_landmarks: np.ndarray, iris_center: np.ndarray) -> 
 
 
 def classify_gaze(
-    pitch: float, yaw: float, iris_ratio: float, ear: float = 1.0
+    pitch: float,
+    yaw: float,
+    iris_ratio: float,
+    ear: float = 1.0,
+    *,
+    ear_closed_threshold: float | None = None,
+    pitch_down_threshold_deg: float | None = None,
+    yaw_left_threshold_deg: float | None = None,
+    yaw_right_threshold_deg: float | None = None,
 ) -> GazeState:
     """Classify gaze direction from head pose and eye state.
+
+    This function supports optional calibrated threshold overrides.
+    When overrides are not provided, it falls back to the global defaults
+    from :data:`src.config.settings.settings`.
 
     Args:
         pitch: Head pitch in degrees (negative = looking down).
         yaw: Head yaw in degrees (positive = looking right).
         iris_ratio: Iris position ratio (distance from inner corner to iris center / total width).
         ear: Eye Aspect Ratio (below threshold = eyes closed).
+        ear_closed_threshold: Calibrated EAR-closed threshold.
+        pitch_down_threshold_deg: Calibrated pitch-down threshold.
+        yaw_left_threshold_deg: Calibrated left yaw threshold.
+        yaw_right_threshold_deg: Calibrated right yaw threshold.
 
     Returns:
         GazeState
     """
-    if ear < settings.gaze_ear_closed_threshold:
+    ear_closed = (
+        settings.gaze_ear_closed_threshold
+        if ear_closed_threshold is None
+        else ear_closed_threshold
+    )
+    pitch_down = (
+        settings.gaze_pitch_down_threshold_deg
+        if pitch_down_threshold_deg is None
+        else pitch_down_threshold_deg
+    )
+    yaw_left = (
+        -settings.gaze_yaw_threshold_deg
+        if yaw_left_threshold_deg is None
+        else yaw_left_threshold_deg
+    )
+    yaw_right = (
+        settings.gaze_yaw_threshold_deg
+        if yaw_right_threshold_deg is None
+        else yaw_right_threshold_deg
+    )
+
+    if ear < ear_closed:
         return GazeState.EYES_CLOSED
 
-    if pitch < settings.gaze_pitch_down_threshold_deg:
+    if pitch < pitch_down:
         return GazeState.LOOKING_DOWN
 
-    if (
-        yaw < -settings.gaze_yaw_threshold_deg
-        or iris_ratio < settings.gaze_iris_left_threshold
-    ):
+    if yaw < yaw_left or iris_ratio < settings.gaze_iris_left_threshold:
         return GazeState.AWAY_LEFT
 
-    if (
-        yaw > settings.gaze_yaw_threshold_deg
-        or iris_ratio > settings.gaze_iris_right_threshold
-    ):
+    if yaw > yaw_right or iris_ratio > settings.gaze_iris_right_threshold:
         return GazeState.AWAY_RIGHT
 
     return GazeState.AT_SCREEN
