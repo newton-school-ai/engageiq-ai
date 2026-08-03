@@ -1,15 +1,19 @@
 """Nudge decision logic: when to nudge based on state, duration, history."""
 
 from dataclasses import dataclass
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
+
 from src.agents.nudge_agent import nudge_app
+
 
 @dataclass
 class NudgeDecision:
     """Determines whether a nudge should be sent and what kind."""
+
     should_nudge: bool
     nudge_type: Optional[str] = None
     reason: Optional[str] = None
+
 
 class NudgeDecisionEngine:
     """Evaluates when and how to nudge using a LangGraph-based agent."""
@@ -24,7 +28,7 @@ class NudgeDecisionEngine:
         state_duration: float,
         last_nudge_time: Optional[float],
         session_nudge_count: int,
-        effectiveness_history: List[Dict]
+        effectiveness_history: List[Dict],
     ) -> NudgeDecision:
         """Decide whether to nudge the student using LangGraph.
 
@@ -50,7 +54,7 @@ class NudgeDecisionEngine:
             # Defaults
             "should_nudge": False,
             "nudge_type": None,
-            "reason": None
+            "reason": None,
         }
 
         # Invoke the LangGraph agent
@@ -59,5 +63,5 @@ class NudgeDecisionEngine:
         return NudgeDecision(
             should_nudge=final_state.get("should_nudge", False),
             nudge_type=final_state.get("nudge_type"),
-            reason=final_state.get("reason")
+            reason=final_state.get("reason"),
         )
